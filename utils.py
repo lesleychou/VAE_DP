@@ -21,19 +21,19 @@ def set_seed(seed):
 gmm_seed = 0
 
 
-def support_pre_proc(data_supp, pre_proc_method="GMM"):
+def support_pre_proc(data_supp, continuous_columns, categorical_columns, all_possible_categories, pre_proc_method="GMM"):
 
     #%% -------- Data Pre-Processing -------- #
 
     # We one-hot the categorical cols and standardise the continuous cols
-    data_supp["x14"] = data_supp["x0"]
-    # data_supp = data_supp.astype('float32')
-    data_supp = data_supp[
-        ["duration"] + [f"x{i}" for i in range(1, 15)] + ["event"]
-    ]
-    data_supp[["x1", "x2", "x3", "x4", "x5", "x6", "event"]] = data_supp[
-        ["x1", "x2", "x3", "x4", "x5", "x6", "event"]
-    ].astype(int)
+    # data_supp["x14"] = data_supp["x0"]
+    # # data_supp = data_supp.astype('float32')
+    # data_supp = data_supp[
+    #     ["duration"] + [f"x{i}" for i in range(1, 15)] + ["event"]
+    # ]
+    # data_supp[["x1", "x2", "x3", "x4", "x5", "x6", "event"]] = data_supp[
+    #     ["x1", "x2", "x3", "x4", "x5", "x6", "event"]
+    # ].astype(int)
 
     # As of coding this, new version of RDT adds in GMM transformer which is what we require, however hyper transformers do not work as individual
     # transformers take a 'columns' argument that can only allow for fitting of one column - so you need to loop over and create one for each column
@@ -42,11 +42,11 @@ def support_pre_proc(data_supp, pre_proc_method="GMM"):
     continuous_transformers = {}
     categorical_transformers = {}
 
-    continuous_columns = ["duration"] + [f"x{i}" for i in range(7, 15)]
-    categorical_columns = ["event"] + [f"x{i}" for i in range(1, 7)]
-    num_categories = (
-        np.array([np.amax(data_supp[col]) for col in categorical_columns]) + 1
-    ).astype(int)
+    # For each categorical column we want to know the number of categories
+    # num_categories = (
+    #     np.array([np.amax(data_supp[col]) for col in categorical_columns]) + 2
+    # ).astype(int)
+    num_categories = np.array([all_possible_categories])
     num_continuous = len(continuous_columns)
 
     transformed_dataset = data_supp.copy(deep=True)
@@ -621,7 +621,7 @@ def plot_variable_distributions(
                 )
             )
 
-        plt.show()
+        # plt.show()
 
     for column in continuous_columns:
 
@@ -659,4 +659,4 @@ def plot_variable_distributions(
 
         plt.show()
 
-        return None
+    return None
