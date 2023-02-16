@@ -24,17 +24,6 @@ gmm_seed = 0
 def support_pre_proc(data_supp, continuous_columns, categorical_columns, all_possible_categories, pre_proc_method="GMM"):
 
     #%% -------- Data Pre-Processing -------- #
-
-    # We one-hot the categorical cols and standardise the continuous cols
-    # data_supp["x14"] = data_supp["x0"]
-    # # data_supp = data_supp.astype('float32')
-    # data_supp = data_supp[
-    #     ["duration"] + [f"x{i}" for i in range(1, 15)] + ["event"]
-    # ]
-    # data_supp[["x1", "x2", "x3", "x4", "x5", "x6", "event"]] = data_supp[
-    #     ["x1", "x2", "x3", "x4", "x5", "x6", "event"]
-    # ].astype(int)
-
     # As of coding this, new version of RDT adds in GMM transformer which is what we require, however hyper transformers do not work as individual
     # transformers take a 'columns' argument that can only allow for fitting of one column - so you need to loop over and create one for each column
     # in order to fit the dataset - https://github.com/sdv-dev/RDT/issues/376
