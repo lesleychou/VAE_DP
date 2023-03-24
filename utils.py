@@ -2,7 +2,7 @@ from datetime import datetime
 from lzma import CHECK_CRC32
 import numpy as np
 import torch
-from rdt.transformers import numerical, categorical, DatetimeTransformer
+from rdt.transformers import numerical, categorical
 import pandas as pd
 
 # Graph Visualisation
@@ -112,7 +112,6 @@ def mimic_pre_proc(data_supp, original_continuous_columns, original_categorical_
 
     num_continuous = len(continuous_columns)
 
-    # TODO: why is it 21??? it should be sum(num_categories) + num_continuous
     for index, column in enumerate(categorical_columns):
         print(index, column, "------index, column")
         temp_categorical = categorical.OneHotEncodingTransformer()
@@ -121,9 +120,7 @@ def mimic_pre_proc(data_supp, original_continuous_columns, original_categorical_
             "categorical_{}".format(index)
         ] = temp_categorical
 
-
         transformed_dataset = temp_categorical.transform(transformed_dataset)
-    #import pdb; pdb.set_trace()
 
     # We need the dataframe in the correct format i.e. categorical variables first and in the order of
     # num_categories with continuous variables placed after

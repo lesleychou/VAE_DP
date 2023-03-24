@@ -223,7 +223,7 @@ def objective(
         metric_synthetic_supp = temp_datetime.transform(metric_synthetic_supp)
 
     # -------- SDV Metrics -------- #
-    # Calculate the sdv metrics for SynthVAE
+    # Calculate the sdv metrics for PrvTel-VAE
 
     metrics = distribution_metrics(
         gower_bool=gower,
