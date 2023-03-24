@@ -154,6 +154,7 @@ class VAE(nn.Module):
             i = 0
 
             for v in range(len(self.num_categories)):
+                # import pdb; pdb.set_trace()
 
                 categoric_loglik += -torch.nn.functional.cross_entropy(
                     x_recon[:, i : (i + self.num_categories[v])],
