@@ -1,6 +1,6 @@
 import numpy as np
 from sdv.evaluation import evaluate
-import gower
+from scipy import stats
 import pandas as pd
 
 from sdv.metrics.tabular import NumericalMLP, CategoricalSVM
@@ -8,66 +8,43 @@ from sdv.metrics.tabular import NumericalMLP, CategoricalSVM
 # Distributional metrics - Check distribution differences between synthetic & original dataset as well as how
 # Easy it is to discriminate them i.e. svc detection
 def distribution_metrics(
-    gower_bool,
     distributional_metrics,
     data_supp,
     synthetic_supp,
-    categorical_columns,
-    continuous_columns,
-    saving_filepath=None,
-    pre_proc_method="GMM",
+    categorical_columns
 ):
-
-    # Define lists to contain the metrics achieved
-
-    no_metrics = len(distributional_metrics)
-    metrics = []
-
-    # Need these in same column order
-
+    # Need the data in same column order
     synthetic_supp = synthetic_supp[data_supp.columns]
 
     # Now categorical columns need to be converted to objects as SDV infers data
     # types from the fields and integers/floats are treated as numerical not categorical
+    # TODO: is converted to object, then it can NOT check the metric for categorical_columns
+    synthetic_supp[categorical_columns] = synthetic_supp[categorical_columns].astype(float)
+    data_supp[categorical_columns] = data_supp[categorical_columns].astype(float)
 
-    synthetic_supp[categorical_columns] = synthetic_supp[categorical_columns].astype(
-        object
-    )
-    data_supp[categorical_columns] = data_supp[categorical_columns].astype(object)
+    # evaluate on each column
+    evals = pd.DataFrame()
+    col_list = []
+    single_col_evals_list = []
+    p_value_list = []
 
-    evals = evaluate(
-        synthetic_supp, data_supp, metrics=distributional_metrics, aggregate=False
-    )
-
-    # evals is a pandas dataframe of metrics - if we want to add a gower metric then we can
-    # save this separately
-
-    metrics = np.array(evals["raw_score"])
-
-    if gower_bool == True:
-
-        # Find the gower distance
-        metrics = np.append(
-            metrics, np.mean(gower.gower_matrix(data_supp, synthetic_supp))
+    for col in data_supp:
+        col_list.append(col)
+        single_col_evals = evaluate(
+            synthetic_supp[[col]], data_supp[[col]], metrics=distributional_metrics, aggregate=False
         )
+        # return of stats.ks_2samp: KstestResult(statistic=0.15579, pvalue=8.4e-92)
+        p_value = stats.ks_2samp(synthetic_supp[col], data_supp[col])[1]
+        p_value_list.append(p_value)
 
-        metrics = pd.DataFrame(
-            data=[metrics], columns=(distributional_metrics + ["Gower"])
-        )
+        single_col_evals = single_col_evals["raw_score"].tolist()[0]
+        single_col_evals_list.append(single_col_evals)
 
-    else:
+    evals['dimension'] = col_list
+    evals['KSTest_score'] = single_col_evals_list
+    evals['KSTest_p_value'] = p_value_list
 
-        metrics = pd.DataFrame(data=[metrics], columns=(distributional_metrics))
-
-    # Save these metrics into a pandas dataframe - if the user wants to
-
-    if saving_filepath != None:
-
-        metrics.to_csv(
-            "{}Metrics_SynthVAE_{}.csv".format(saving_filepath, pre_proc_method)
-        )
-
-    return metrics
+    return evals
 
 
 # Build in some privacy metrics from SDV - TO DO!!!
@@ -112,19 +89,3 @@ def privacy_metrics(
         )
 
         return svm_priv
-
-
-# Build in some fairness metrics (will have to find a library/code these ourselves) - TO DO!!!
-
-
-def fairness_metrics(
-    user_metrics,
-    data_supp,
-    synthetic_supp,
-    categorical_columns,
-    continuous_columns,
-    saving_filepath=None,
-    pre_proc_method="GMM",
-):
-
-    return None
