@@ -55,10 +55,7 @@ def privacy_metrics(
     data_supp,
     synthetic_supp,
     categorical_columns,
-    continuous_columns,
-    saving_filepath=None,
-    pre_proc_method="GMM",
-):
+    continuous_columns):
 
     if private_variable in continuous_columns:
 
